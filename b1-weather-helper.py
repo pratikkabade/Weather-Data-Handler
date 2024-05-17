@@ -42,56 +42,22 @@ def weather_helper(p):
 
     # SELECTION OF COLUMN NAMES
     time = data['time']
-    temp = data['temperature_2m (°C)']
-    hum = data['relative_humidity_2m (%)']
-    hum = hum.groupby(hum.index // 24).mean()
-
-    per = data['precipitation (mm)']
-    per = per.groupby(per.index // 24).mean()
-
-    rain = data['rain (mm)']
-    rain = rain.groupby(rain.index // 24).mean()
-
-    snowfall = data['snowfall (cm)']
-    snowfall = snowfall.groupby(snowfall.index // 24).mean()
-
-    snowdepth = data['snow_depth (m)']
-    snowdepth = snowdepth.groupby(snowdepth.index // 24).mean()
-
-    weather_code = data['weather_code (wmo code)']
-    weather_code = weather_code.groupby(weather_code.index // 24).mean()
-
-    surface_pressure = data['surface_pressure (hPa)']
-    surface_pressure = surface_pressure.groupby(surface_pressure.index // 24).mean()
-
-    # visibility = data['visibility (m)']
-    # visibility = visibility.groupby(visibility.index // 24).mean()
-
-    wind_speed = data['wind_speed_10m (km/h)']
-    wind_speed = wind_speed.groupby(wind_speed.index // 24).mean()
-
-    wind_gusts = data['wind_gusts_10m (km/h)']
-    wind_gusts = wind_gusts.groupby(wind_gusts.index // 24).mean()
-
-    # # select columns from th data
-    # col = []
-    # for i in data.columns:
-    #     i = data[i]
-    #     i = i.groupby(i.index // 24).mean()
-    #     col.append(i)
-        
-    # print(col)
-
-
     # remove everything after T
     time = time.str.split('T').str[0]
     # merge 24 rows into 1 row
     time = time.groupby(time.index // 24).first()
 
+    # calculate unique number of time
+    unique_time = time.nunique()
 
-    # combine 24 rows into 1 row by averaging the temperature
-    temp = temp.groupby(temp.index // 24).mean()
 
+    # select columns from th data
+    for i in range(2,len(data.columns)):
+        a = data.columns[i]
+        b = data[a]
+        b = b.groupby(b.index // 24).mean()
+        time = pd.concat([ time, b], axis=1)
+        
     # get location_id from the data
     location = data['location_id']
     # elliminate 24 rows into 1 row
@@ -102,9 +68,6 @@ def weather_helper(p):
     latitude = location_data['latitude']
     longitude = location_data['longitude']
     new_location_id = location_data['location_id']
-
-    # calculate unique number of time
-    unique_time = time.nunique()
 
     # show unique_times number of rows of latitude and longitude
     latitude = latitude.repeat(unique_time)
@@ -120,11 +83,7 @@ def weather_helper(p):
     new_location_id = new_location_id.reset_index(drop=True)
 
     c = pd.concat([ new_location_id, location, latitude, longitude], axis=1)
-    conc = pd.concat([c, 
-    time, temp, hum, per, rain, snowfall, snowdepth, weather_code, surface_pressure, wind_speed, wind_gusts
-    ], axis=1)
-
-    # print(conc)
+    conc = pd.concat([c, time], axis=1)
 
     # save the final data
     conc.to_csv('./bin/data/weather-with-location'+PATCH+'.csv',index=False)
