@@ -1,20 +1,23 @@
 import pandas as pd
 
+# Read location coordinates
 location_coordinates = pd.read_csv('archive/uk-train-stations.csv')
 
-# get columns from location
+# Extract latitude and longitude columns
 lattitude = location_coordinates['latitude']
 longitude = location_coordinates['longitude']
 
-# url-parts
+# Define base and post URL parts
 base_url = 'https://api.open-meteo.com/v1/forecast?latitude='
 post_url = '&daily=temperature_2m_max,wind_speed_10m_max&timezone=Europe%2FLondon&forecast_days=14&format=csv'
 
-# urls array
+# Initialize URLs list
 urls = []
 
-# create urls
-print('rows-appended:',end=' ')
+# Print progress
+print('Rows appended:', end=' ')
+
+# Generate URLs
 for i in range(len(lattitude)//100):
     url = base_url
     url2 = post_url
@@ -22,29 +25,30 @@ for i in range(len(lattitude)//100):
     for j in range(100):
         k = i*100 + j
         url += str(lattitude[k]) + ','
-        # print('aaa',k)
     url = url[:-1] # remove last comma
 
     url += '&longitude='
     for j in range(100):
         k = i*100 + j
         url += str(longitude[k]) + ','
-        # print('bbb',k)
     url = url[:-1] # remove last comma
 
     url += url2
     
-    # add this url to a list
+    # Add the generated URL to the list
     urls.append(url)
+
+    # Print progress
     print((i+1)*100, end=' ')
 
-print('\n')
-print('\n')
-print(len(urls))
-# convert urls to a dataframe
-urls_df = pd.DataFrame(urls)
-urls_df.rename_axis("animal")
 
-urls_df.to_csv('data/FINAL-URLS.csv',index=False)
+# Print the number of URLs
+print(f'\n\nNumber of URLs: {len(urls)}\n')
 
-print('\n' + 'done with url creation')
+# Convert URLs list to a DataFrame
+urls_df = pd.DataFrame(urls, columns=['URL'])
+
+# Save the DataFrame to a CSV file
+urls_df.to_csv('data/FINAL-URLS.csv', index=False)
+
+print('Done with URL creation.')

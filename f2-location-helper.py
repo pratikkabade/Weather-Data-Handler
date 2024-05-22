@@ -4,62 +4,67 @@ TOTAL_FILES = 5
 def location_helper(p):
     PATCH = p
 
+    # Read location data
     location_data = pd.read_csv('./bin/helpers/forecast-location'+PATCH+'.csv')
 
-    # fetch only unique locations
+    # Fetch only unique locations
     location_data = location_data.drop_duplicates(subset=['location_id'])
 
-    # create new column of location_id which has patch number
+    # Create new column of location_id which has patch number
     location_data['new_location_id'] = location_data['location_id'].apply(lambda x: PATCH+" " +str(x))
 
-    # other important columns
+    # Other important columns
     latitude = location_data['latitude']
     longitude = location_data['longitude']
 
-    # concatenate the columns
+    # Concatenate the columns
     conc = pd.concat([location_data['new_location_id'], latitude, longitude], axis=1)
 
-    # save the final data
+    # Save the final data
     conc.to_csv('./bin/data/forecast-mock-location'+PATCH+'.csv',index=False)
 
 
+# Call location_helper for each file
 for i in range(1,TOTAL_FILES+1):
     location_helper(str(i))
 
-# merge all the data into one file
+# Merge all the data into one file
 data = pd.read_csv('./bin/data/forecast-mock-location1.csv')
 for i in range(2, TOTAL_FILES+1):
     data = data._append(pd.read_csv('./bin/data/forecast-mock-location'+str(i)+'.csv'))
 
+# Save the merged data
 data.to_csv('./bin/data/forecast-mocked-source-locations.csv',index=False)
 
 
 
-# real location coordinates MERGER
+# Real location coordinates MERGER
 data = pd.read_csv('archive/uk-train-stations.csv')
 
-# run for loop to add 1 in every row of the column
+# Initialize 'new_location_id' column with 1
 data['new_location_id'] = 1
-j = 0
+counter = 0
 
+# Update 'new_location_id' for each row
 for i in range(len(data)):
     if i % 100 == 0:
-        j += 1
-    data['new_location_id'][i] = str(j) + ' ' + str(i - (j-1)*100)
+        counter += 1
+    data['new_location_id'][i] = str(counter) + ' ' + str(i - (counter-1)*100)
 
 
 
 
-# other important columns
+# Select important columns
 latitude = data['latitude']
 longitude = data['longitude']
 site = data['3alpha']
 station_name = data['station_name']
 
-# concatenate the columns
-conc = pd.concat([data['new_location_id'], site, station_name, latitude, longitude], axis=1)
+# Concatenate the columns
+concatenated_data = pd.concat([data['new_location_id'], site, station_name, latitude, longitude], axis=1)
 
-# save the final data
-conc.to_csv('bin/forecast-real-location-coordinates.csv',index=False)
+# Save the final data
+concatenated_data.to_csv('bin/forecast-real-location-coordinates.csv',index=False)
 
-print('\n\n\ndone! with forecast-real location coordinates')
+print('\n')
+print('Done with forecast-real location coordinates.')

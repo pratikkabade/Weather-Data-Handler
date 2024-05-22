@@ -1,13 +1,7 @@
-# Hierarchy
+# Weather Data Handler
 
-- **bin**
-  - **raw** files from the *open-mateo*, `patch5` contains **5 to 501**
+This repository contains a tool to convert raw weather data from OpenMateo into a format that can be easily imported into Power BI.
 
-- **data**
-  - `weather-with-location{}` output from **bin**
+# Files
 
-- **helpers**
-  - contains split files `data{}` and `location{}`
-
-
-openmeteo_requests requests_cache retry_requests
+## 
