@@ -1,5 +1,6 @@
 import pandas as pd
 import requests
+import time
 
 # Read the CSV file containing URLs
 urls_df = pd.read_csv('data/FINAL-URLS.csv')
@@ -9,8 +10,15 @@ print('Forecast-URLs opened:', end=' ')
 
 # Loop through each URL in the DataFrame
 for index, row in urls_df.iterrows():
+    # Get the URL
     url = row['URL']
     print(index + 1, end=' ')
+
+    # Run this loop after 1 min to avoid the server blockage
+    if (index + 1) % 5 == 0:
+        print('\nSleeping for 1 minute...')
+        time.sleep(65)
+        print('...Continuing from :', end=' ')
 
     # Download the file from the URL
     response = requests.get(url)
